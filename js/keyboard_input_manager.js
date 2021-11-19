@@ -35,18 +35,18 @@ KeyboardInputManager.prototype.listen = function () {
   var self = this;
 
   var map = {
-    38: 0, // Up
-    39: 1, // Right
-    40: 2, // Down
-    37: 3, // Left
-    75: 0, // Vim up
-    76: 1, // Vim right
-    74: 2, // Vim down
-    72: 3, // Vim left
-    87: 0, // W
-    68: 1, // D
-    83: 2, // S
-    65: 3  // A
+    38: 2, // Up
+    39: 3, // Right
+    40: 0, // Down
+    37: 1, // Left
+    75: 2, // Vim up
+    76: 3, // Vim right
+    74: 0, // Vim down
+    72: 1, // Vim left
+    87: 2, // W
+    68: 3, // D
+    83: 0, // S
+    65: 1  // A
   };
 
   // Respond to direction keys
@@ -54,9 +54,6 @@ KeyboardInputManager.prototype.listen = function () {
     var modifiers = event.altKey || event.ctrlKey || event.metaKey ||
                     event.shiftKey;
     var mapped    = map[event.which];
-
-    // Ignore the event if it's happening in a text field
-    if (self.targetIsInput(event)) return;
 
     if (!modifiers) {
       if (mapped !== undefined) {
@@ -82,9 +79,8 @@ KeyboardInputManager.prototype.listen = function () {
 
   gameContainer.addEventListener(this.eventTouchstart, function (event) {
     if ((!window.navigator.msPointerEnabled && event.touches.length > 1) ||
-        event.targetTouches.length > 1 ||
-        self.targetIsInput(event)) {
-      return; // Ignore if touching with more than 1 finger or touching input
+        event.targetTouches.length > 1) {
+      return; // Ignore if touching with more than 1 finger
     }
 
     if (window.navigator.msPointerEnabled) {
@@ -104,9 +100,8 @@ KeyboardInputManager.prototype.listen = function () {
 
   gameContainer.addEventListener(this.eventTouchend, function (event) {
     if ((!window.navigator.msPointerEnabled && event.touches.length > 0) ||
-        event.targetTouches.length > 0 ||
-        self.targetIsInput(event)) {
-      return; // Ignore if still touching with one or more fingers or input
+        event.targetTouches.length > 0) {
+      return; // Ignore if still touching with one or more fingers
     }
 
     var touchEndClientX, touchEndClientY;
@@ -127,7 +122,7 @@ KeyboardInputManager.prototype.listen = function () {
 
     if (Math.max(absDx, absDy) > 10) {
       // (right : left) : (down : up)
-      self.emit("move", absDx > absDy ? (dx > 0 ? 1 : 3) : (dy > 0 ? 2 : 0));
+      self.emit("move", absDx > absDy ? (dx > 0 ? 3 : 1) : (dy > 0 ? 0 : 2));
     }
   });
 };
@@ -146,8 +141,4 @@ KeyboardInputManager.prototype.bindButtonPress = function (selector, fn) {
   var button = document.querySelector(selector);
   button.addEventListener("click", fn.bind(this));
   button.addEventListener(this.eventTouchend, fn.bind(this));
-};
-
-KeyboardInputManager.prototype.targetIsInput = function (event) {
-  return event.target.tagName.toLowerCase() === "input";
 };
